@@ -5,10 +5,15 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use App\Models\Year;
+use Inertia\Inertia;
 
 
 class YearController extends Controller
 {
+    public function index(){
+        return Inertia::render('Dashboard/ManagementAcademicYears');
+    }
+
    // جلب جميع السنوات الدراسية
    public function getAcademicYears()
    {
@@ -25,6 +30,7 @@ class YearController extends Controller
        ]);
 
        Year::create($validated);
+       
 
        return response()->json(['message' => 'تمت إضافة السنة الدراسية بنجاح']);
    }
