@@ -1,0 +1,28 @@
+| التفسير | نوع العلاقة | الجدول الثاني | الجدول الأول                                                        |
+|--------------|--------------|---------------|------------------------------------------------------           |
+| Semester     | Unit         | (1:M)         | كل فصل دراسي Semester يحتوي على عدة وحدات Unit.               |
+| Unit         | Video        | (1:M)         | كل وحدة Unit تحتوي على عدة فيديوهات Video.                    |
+| Category     | Course       | (1:M)         | كل فئة Category تحتوي على عدة كورسات Course.                  |
+| Year         | Course       | (1:M)         | كل سنة Year تحتوي على عدة كورسات Course.                      |
+| Course       | CourseVideo  | (1:M)         | كل كورس Course يحتوي على عدة فيديوهات CourseVideo.            |
+| User         | Semester     | (M:M)         | المستخدم يمكن أن يسجل في عدة فصول Semester والعكس صحيح.      |
+| User         | Course       | (M:M)         | المستخدم يمكن أن يسجل في عدة كورسات Course والعكس صحيح.      |
+| User         | Comment      | (1:M)         | كل مستخدم يمكن أن يكتب عدة تعليقات Comment.                   |
+--------------------------------------------------------------------------------------------------------------------------------
+
+years يحتوي على العديد من semesters (hasMany)
+years يحتوي على العديد من courses (hasMany)
+semesters ينتمي إلى years (belongsTo)
+semesters يحتوي على العديد من units (hasMany)
+semesters يرتبط بالعديد من المستخدمين عبر جدول pivot: semester_user (belongsToMany)
+units ينتمي إلى semesters (belongsTo)
+units يحتوي على العديد من videos (hasMany)
+videos ينتمي إلى units (belongsTo)
+courses ينتمي إلى years (belongsTo)
+courses ينتمي إلى categories (belongsTo)
+courses يحتوي على العديد من course_videos (hasMany)
+courses يرتبط بالعديد من المستخدمين عبر جدول pivot: course_user (belongsToMany)
+course_videos ينتمي إلى courses (belongsTo)
+users يرتبط بالعديد من semesters عبر جدول pivot: semester_user (belongsToMany)
+users يرتبط بالعديد من courses عبر جدول pivot: course_user (belongsToMany)
+users يحتوي على العديد من comments (hasMany)
