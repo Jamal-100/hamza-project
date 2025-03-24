@@ -1,4 +1,3 @@
-// ManagementAcademicYears.jsx
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -17,14 +16,14 @@ export default function ManagementAcademicYears() {
     const [loading, setLoading] = useState(true);
     const [processing, setProcessing] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    
+
     // حالة النماذج
     const [showModal, setShowModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [editingYear, setEditingYear] = useState(null);
     const [yearToDelete, setYearToDelete] = useState(null);
     const [newYear, setNewYear] = useState('');
-    
+
     // حالة الرسائل والأخطاء
     const [errors, setErrors] = useState({});
     const [message, setMessage] = useState({ text: '', type: '' });
@@ -34,7 +33,7 @@ export default function ManagementAcademicYears() {
         fetchAcademicYears();
     }, []);
 
-    // إخفاء رسالة النجاح أو الفشل بعد فترة
+    // إخفاء رسالة النجاح أو الفشل بعد 5 ثوان
     useEffect(() => {
         if (message.text) {
             const timer = setTimeout(() => {
@@ -44,20 +43,27 @@ export default function ManagementAcademicYears() {
         }
     }, [message]);
 
-    // الوظائف الرئيسية للتعامل مع البيانات
+    // جلب بيانات السنوات الدراسية
     const fetchAcademicYears = async () => {
         try {
             setLoading(true);
             const response = await axios.get('/api/academic-years');
-            setAcademicYears(response.data);
+
+            // تخزين البيانات بالشكل المناسب
+            const data = Array.isArray(response.data) ? response.data :
+                (response.data && Array.isArray(response.data.data) ? response.data.data : []);
+
+            setAcademicYears(data);
         } catch (error) {
             console.error('خطأ في جلب البيانات:', error);
             setMessage({ text: 'حدث خطأ أثناء جلب البيانات', type: 'error' });
+            setAcademicYears([]);
         } finally {
             setLoading(false);
         }
     };
 
+    // إضافة أو تعديل سنة دراسية
     const handleSubmit = async (e) => {
         e.preventDefault();
         setProcessing(true);
@@ -77,17 +83,17 @@ export default function ManagementAcademicYears() {
             setShowModal(false);
             fetchAcademicYears();
         } catch (error) {
-            if (error.response && error.response.data.errors) {
+            if (error.response?.data?.errors) {
                 setErrors(error.response.data.errors);
             } else {
                 setMessage({ text: 'حدث خطأ أثناء حفظ البيانات', type: 'error' });
-                console.error('خطأ في حفظ البيانات:', error);
             }
         } finally {
             setProcessing(false);
         }
     };
 
+    // حذف سنة دراسية
     const handleDelete = async () => {
         if (!yearToDelete) return;
 
@@ -98,7 +104,6 @@ export default function ManagementAcademicYears() {
             fetchAcademicYears();
         } catch (error) {
             setMessage({ text: 'حدث خطأ أثناء حذف البيانات', type: 'error' });
-            console.error('خطأ في حذف البيانات:', error);
         } finally {
             setYearToDelete(null);
             setShowDeleteModal(false);
@@ -106,7 +111,7 @@ export default function ManagementAcademicYears() {
         }
     };
 
-    // وظائف المساعدة
+    // فتح نافذة التعديل
     const handleEdit = (year) => {
         setEditingYear(year);
         setNewYear(year.year);
@@ -114,11 +119,13 @@ export default function ManagementAcademicYears() {
         setShowModal(true);
     };
 
+    // فتح نافذة تأكيد الحذف
     const confirmDelete = (year) => {
         setYearToDelete(year);
         setShowDeleteModal(true);
     };
 
+    // فتح نافذة الإضافة
     const openAddModal = () => {
         setEditingYear(null);
         setNewYear('');
@@ -126,14 +133,10 @@ export default function ManagementAcademicYears() {
         setShowModal(true);
     };
 
-    // تصفية البيانات
+    // تصفية البيانات حسب البحث
     const filteredAcademicYears = academicYears.filter(year => {
-        if (typeof year.year === 'string') {
-            return year.year.toLowerCase().includes(searchTerm.toLowerCase());
-        } else if (year.year !== null && year.year !== undefined) {
-            return String(year.year).toLowerCase().includes(searchTerm.toLowerCase());
-        }
-        return false;
+        const yearValue = String(year.year || '').toLowerCase();
+        return yearValue.includes(searchTerm.toLowerCase());
     });
 
     return (
@@ -153,17 +156,17 @@ export default function ManagementAcademicYears() {
                 </div>
 
                 {message.text && (
-                    <MessageAlert 
-                        message={message.text} 
-                        type={message.type} 
-                        onClose={() => setMessage({ text: '', type: '' })} 
+                    <MessageAlert
+                        message={message.text}
+                        type={message.type}
+                        onClose={() => setMessage({ text: '', type: '' })}
                     />
                 )}
 
-                <SearchBar 
-                    searchTerm={searchTerm} 
-                    setSearchTerm={setSearchTerm} 
-                    placeholder="البحث عن سنة دراسية..." 
+                <SearchBar
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    placeholder="البحث عن سنة دراسية..."
                 />
 
                 <div className="bg-white shadow-md rounded-lg overflow-hidden">
@@ -174,21 +177,22 @@ export default function ManagementAcademicYears() {
                     ) : filteredAcademicYears.length === 0 ? (
                         <EmptyState icon="search" message="لا توجد نتائج مطابقة للبحث" />
                     ) : (
-                        <AcademicYearsTable 
-                            years={filteredAcademicYears} 
-                            onEdit={handleEdit} 
-                            onDelete={confirmDelete} 
+                        <AcademicYearsTable
+                            years={filteredAcademicYears}
+                            onEdit={handleEdit}
+                            onDelete={confirmDelete}
                         />
                     )}
                 </div>
             </div>
 
+            {/* نموذج إضافة/تعديل سنة دراسية */}
             {showModal && (
                 <AcademicYearForm
                     isOpen={showModal}
                     isEditing={!!editingYear}
                     yearValue={newYear}
-                    onYearChange={(value) => setNewYear(value)}
+                    onYearChange={setNewYear}
                     onSubmit={handleSubmit}
                     onClose={() => setShowModal(false)}
                     errors={errors}
@@ -196,6 +200,7 @@ export default function ManagementAcademicYears() {
                 />
             )}
 
+            {/* نافذة تأكيد الحذف */}
             {showDeleteModal && (
                 <ConfirmDeleteModal
                     isOpen={showDeleteModal}
@@ -212,59 +217,57 @@ export default function ManagementAcademicYears() {
     );
 }
 
-// كمبوننت جدول السنوات الدراسية
-const AcademicYearsTable = ({ years, onEdit, onDelete }) => {
-    return (
-        <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-                <tr>
-                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        #
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        السنة الدراسية
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        الإجراءات
-                    </th>
+// مكون جدول السنوات الدراسية
+const AcademicYearsTable = ({ years, onEdit, onDelete }) => (
+    <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-50">
+            <tr>
+                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    #
+                </th>
+                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    السنة الدراسية
+                </th>
+                <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    الإجراءات
+                </th>
+            </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+            {years.map((year, index) => (
+                <tr key={year.id} className="hover:bg-gray-50 transition duration-150 ease-in-out">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {index + 1}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                        {year.year}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button
+                            onClick={() => onEdit(year)}
+                            className="text-indigo-600 hover:text-indigo-900 ml-4 transition duration-150 ease-in-out flex items-center"
+                        >
+                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                            تعديل
+                        </button>
+                        <button
+                            onClick={() => onDelete(year)}
+                            className="text-red-600 hover:text-red-900 transition duration-150 ease-in-out flex items-center"
+                        >
+                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            حذف
+                        </button>
+                    </td>
                 </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-                {years.map((year, index) => (
-                    <tr key={year.id} className="hover:bg-gray-50 transition duration-150 ease-in-out">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {index + 1}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                            {year.year}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button
-                                onClick={() => onEdit(year)}
-                                className="text-indigo-600 hover:text-indigo-900 ml-4 transition duration-150 ease-in-out flex items-center"
-                            >
-                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                </svg>
-                                تعديل
-                            </button>
-                            <button
-                                onClick={() => onDelete(year)}
-                                className="text-red-600 hover:text-red-900 transition duration-150 ease-in-out flex items-center"
-                            >
-                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                                حذف
-                            </button>
-                        </td>
-                    </tr>
-                ))}
-            </tbody>
-        </table>
-    );
-};
-// استخدام تنسيق CSS لتحريك العناصر
+            ))}
+        </tbody>
+    </table>
+);
+
 const style = document.createElement('style');
 style.textContent = `
     @keyframes fade-in {
@@ -276,5 +279,6 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
 
 ManagementAcademicYears.layout = page => <DashboardLayout children={page} />;

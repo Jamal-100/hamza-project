@@ -18,8 +18,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $userRole = Role::firstOrCreate(['name' => RolesEnum::User->value]);
-        $adminRole = Role::firstOrCreate(['name' => RolesEnum::Admin->value]);
+        $userRole = Role::create(['name' => RolesEnum::User->value]);
+        $adminRole =Role::create(['name' => RolesEnum::Admin->value]);
         
         User::factory()->create([
             'name' => 'User User',

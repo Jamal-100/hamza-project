@@ -4,9 +4,12 @@ import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
+import { can, hasRole } from "@/helpers";
 
 export default function DashboardLayout({ children }) {
     const user = usePage().props.auth.user;
+    console.log(user);
+    console.log(hasRole(user, "admin"));
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [isMobile, setIsMobile] = useState(false);
@@ -27,16 +30,32 @@ export default function DashboardLayout({ children }) {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="" />
+</svg>
 
     // Sidebar items with beautiful icons
     const sidebarItems = [
         { name: 'لوحة التحكم', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6', href: route('dashboard') },
         { name: 'المستخدمين', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z', href: '#' },
         { name: 'التقارير', icon: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', href: '#' },
-        { name: 'الإعدادات', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z', href: '#' },
+        { name: '       توجيهي   ', icon: 'M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5', href: route('student-courses') },
         { name: 'المساعدة', icon: 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', href: '#' },
-        { name: 'اضافة سنة دراسية', icon: 'M12 10.5v6m3-3H9m4.06-7.19-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z', href: route('ManagementAcademicYears') },
+        {
+            name: 'اضافة سنة دراسية',
+            icon: 'M12 10.5v6m3-3H9m4.06-7.19-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z',
+            href: route('ManagementAcademicYears'),
+            adminOnly: true 
+        },
+        {
+            name: 'اضافة فديو',
+            icon: 'm15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z',
+            href: route('videos.index'),
+            adminOnly: true 
+        },
+
     ];
+
 
     // Function to close sidebar when a link is clicked on mobile
     const handleSidebarLinkClick = () => {
@@ -57,9 +76,8 @@ export default function DashboardLayout({ children }) {
 
             {/* Sidebar */}
             <div
-                className={`${
-                    sidebarOpen ? 'translate-x-0' : 'translate-x-full'
-                } fixed inset-y-0 right-0 z-30 w-64 transform overflow-y-auto bg-gradient-to-br from-green-700 to-green-900 transition duration-300 ease-in-out lg:static lg:translate-x-0 shadow-xl`}
+                className={`${sidebarOpen ? 'translate-x-0' : 'translate-x-full'
+                    } fixed inset-y-0 right-0 z-30 w-64 transform overflow-y-auto bg-gradient-to-br from-green-700 to-green-900 transition duration-300 ease-in-out lg:static lg:translate-x-0 shadow-xl`}
             >
                 {/* Sidebar header with beautiful logo area */}
                 <div className="flex h-16 items-center justify-between border-b border-green-600/30 px-4">
@@ -80,20 +98,22 @@ export default function DashboardLayout({ children }) {
                 {/* Sidebar links with hover effects and active states */}
                 <nav className="mt-6 px-3">
                     {sidebarItems.map((item, index) => (
-                        <Link
-                            key={index}
-                            href={item.href}
-                            onClick={handleSidebarLinkClick}
-                            className={`mb-2 flex items-center rounded-lg p-3 text-sm font-medium transition-all duration-200 
-                                ${route().current('dashboard') && item.name === 'لوحة التحكم' 
-                                    ? 'bg-green-600/80 text-white shadow-md' 
-                                    : 'text-green-100 hover:bg-green-600/50 hover:text-white'}`}
-                        >
-                            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={item.icon} />
-                            </svg>
-                            <span className="mx-3">{item.name}</span>
-                        </Link>
+                        (item.adminOnly && !hasRole(user, "admin")) ? null : ( // ✅ تحقق من صلاحيات الأدمن
+                            <Link
+                                key={index}
+                                href={item.href}
+                                onClick={handleSidebarLinkClick}
+                                className={`mb-2 flex items-center rounded-lg p-3 text-sm font-medium transition-all duration-200 
+                    ${route().current('dashboard') && item.name === 'لوحة التحكم'
+                                        ? 'bg-green-600/80 text-white shadow-md'
+                                        : 'text-green-100 hover:bg-green-600/50 hover:text-white'}`}
+                            >
+                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={item.icon} />
+                                </svg>
+                                <span className="mx-3">{item.name}</span>
+                            </Link>
+                        )
                     ))}
                 </nav>
 

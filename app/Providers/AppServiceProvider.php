@@ -27,5 +27,9 @@ class AppServiceProvider extends ServiceProvider
         Vite::prefetch(concurrency: 3);
         Year::observe(YearObserver::class);
 
+        ini_set('upload_max_filesize', env('UPLOAD_MAX_FILESIZE', '40M'));
+        ini_set('post_max_size', env('POST_MAX_SIZE', '40M'));
+    
+
     }
 }

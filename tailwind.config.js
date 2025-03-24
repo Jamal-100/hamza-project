@@ -33,7 +33,8 @@ export default {
         forms,
         require('tailwindcss-motion'),
         require('flyonui'), // إضافة FlyonUI
-        require("flyonui/plugin") // Require only if you want to use FlyonUI JS component
+        require("flyonui/plugin"), // Require only if you want to use FlyonUI JS component
+        require('tailwind-scrollbar')
     ],
 
     flyonui: {

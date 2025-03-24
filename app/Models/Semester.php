@@ -11,6 +11,8 @@ class Semester extends Model
         'semester',
     ];
 
+    protected $with = ['year'];
+
     public function year()
     {
         return $this->belongsTo(Year::class);

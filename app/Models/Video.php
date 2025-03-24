@@ -11,6 +11,7 @@ class Video extends Model
         'url',
         'unit_id',
         'description',
+        'file_path'
     ];
 
     public function unit()

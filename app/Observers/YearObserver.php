@@ -12,33 +12,32 @@ class YearObserver
      * Handle the Year "created" event.
      */
     public function created(Year $year)
-    {
-        $firstSemester = Semester::create([
-            'year_id' => $year->id,
-            'semester' => 'First Semester', 
+{
+    $firstSemester = Semester::create([
+        'year_id' => $year->id,
+        'semester' => 'First Semester', 
+    ]);
+
+    $secondSemester = Semester::create([
+        'year_id' => $year->id,
+        'semester' => 'Second Semester', 
+    ]);
+
+    for ($i = 1; $i <= 5; $i++) {
+        Unit::create([
+            'semester_id' => $firstSemester->id,
+            'title' => "Unit $i - First Semester of {$year->year}",
+            'description' => "This is unit $i for the First Semester of {$year->year}",
         ]);
-
-        $secondSemester = Semester::create([
-            'year_id' => $year->id,
-            'semester' => 'Second Semester', 
-        ]);
-
-        for ($i = 1; $i <= 5; $i++) {
-            Unit::create([
-                'semester_id' => $firstSemester->id,
-                'title' => "Unit $i - First Semester",
-                'description' => "This is unit $i for the First Semester",
-            ]);
-        }
-
-        for ($i = 1; $i <= 5; $i++) {
-            Unit::create([
-                'semester_id' => $secondSemester->id,
-                'title' => "Unit $i - Second Semester",
-                'description' => "This is unit $i for the Second Semester",
-            ]);
-        }
     }
+    for ($i = 1; $i <= 5; $i++) {
+        Unit::create([
+            'semester_id' => $secondSemester->id,
+            'title' => "Unit $i - Second Semester of {$year->year}",
+            'description' => "This is unit $i for the Second Semester of {$year->year}",
+        ]);
+    }
+}
 
     /**
      * Handle the Year "updated" event.
